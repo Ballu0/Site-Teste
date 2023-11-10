@@ -1,37 +1,36 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-	<head>
-		<meta charset="UTF-8">
-		<title>Barbearia Alura</title>
-		<link rel="stylesheet" href="style.css">
-	</head>
+#!/bin/bash
 
-	<body>
-		<header>
-			<h1 class="titulo-principal">Barbearia Alura</h1>
-		</header>
-		<img id="banner" src="banner.jpg">
-		<div class="principal">
-			<h2 class="titulo-centralizado">Sobre a Barbearia Alura</h2>
-	 
-			<p>Localizada no coração da cidade a <strong>Barbearia Alura</strong> traz para o mercado o que há de melhor para o seu cabelo e barba. Fundada em 2019, a Barbearia Alura já é destaque na cidade e conquista novos clientes a cada dia.</p>
+# Verifique se foi fornecido um link de repositório como argumento.
+if [ $# -ne 1 ]; then
+  echo "Uso: $0 <link_do_repositorio>"
+  exit 1
+fi
 
-			<p id="missao"><em>Nossa missão é: <strong>"Proporcionar auto-estima e qualidade de vida aos clientes"</strong>.</em></p>
+# Diretório de destino (pasta Downloads).
+download_dir="$HOME/Downloads"
 
-			<p>Oferecemos profissionais experientes e antenados às mudanças no mundo da moda. O atendimento possui padrão de excelência e agilidade, garantindo qualidade e satisfação dos nossos clientes.</p>
-		</div>
+# Verifica se a pasta do repositório já existe em Downloads.
+if [ -d "$download_dir/$(basename $1 .git)" ]; then
+  echo "A pasta do repositório já existe. Removendo..."
+  rm -rf "$download_dir/$(basename $1 .git)"
+fi
 
-		<div class="beneficios">
-			<h3 class="titulo-centralizado">Benefícios</h3>
+# Clona o repositório.
+git clone "$1" "$download_dir/$(basename $1 .git)"
 
-			<ul>
-				<li class="itens">Atendimento aos Clientes</li>
-				<li class="itens">Espaço diferenciado</li>
-				<li class="itens">Localização</li>
-				<li class="itens">Profissionais Qualificados</li>
-			</ul>
+# Abre os arquivos style.css e index.html no Sublime Text.
+subl "$download_dir/$(basename $1 .git)/style.css"
+subl "$download_dir/$(basename $1 .git)/index.html" &
+subl_pid=$!
 
-			<img src="beneficios.jpg" class="imagembeneficios">
-		</div>
-	</body>
-</html>
+# Abre o arquivo index.html no Firefox (assumindo que o Firefox está instalado).
+firefox "$download_dir/$(basename $1 .git)/index.html" &
+firefox_pid=$!
+
+# Espera o fechamento do Firefox e do Sublime Text.
+wait $firefox_pid
+wait $subl_pid
+
+# Após o fechamento dos programas, remove os arquivos locais.
+echo "Removendo arquivos locais, certifique-se de ter enviado ao GitHub."
+rm -rf "$download_dir/$(basename $1 .git)"
